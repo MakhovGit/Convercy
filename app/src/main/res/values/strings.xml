@@ -12,4 +12,11 @@
     <string name="convertible_amount_header">Конвертируемая сумма</string>
     <!-- ExchangeScreen end -->
 
+    <!-- ErrorScreen begin -->
+    <string name="error_message">Нет соединения</string>
+    <string name="error_hint">Проверьте интернет-соединение\n и попробуйте ещё раз</string>
+    <string name="reconnect_button">Переподключиться</string>
+    <!-- ErrorScreen end -->
+
+
 </resources>
