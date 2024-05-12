@@ -1,3 +1,15 @@
 <resources>
+
+    <!-- Commons begin -->
     <string name="app_name">Convercy</string>
+    <!-- Commons end -->
+
+    <!-- ExchangeScreen begin -->
+    <string name="main_header">Конвертер валют</string>
+    <string name="exchange_rate_header">Обменный курс</string>
+    <string name="exchange_rate">1 RUS = 0.011 USD</string>
+    <string name="amount_header">Сумма</string>
+    <string name="convertible_amount_header">Конвертируемая сумма</string>
+    <!-- ExchangeScreen end -->
+
 </resources>
