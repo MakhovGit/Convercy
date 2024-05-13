@@ -17,3 +17,4 @@ val BigHeaderColor = Color(0xFF1F2261)
 val CommonTextColor = Color.Black
 val NoInternetIconColor = Color(0xFF6DCADA)
 val ErrorScreenButtonColor = Color(0xFF6DCADA)
+val ProgressIndicatorColor = Color.Black
