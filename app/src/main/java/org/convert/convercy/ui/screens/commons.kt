@@ -1,6 +1,7 @@
 package org.convert.convercy.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,18 +35,26 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.convert.convercy.R
+import org.convert.convercy.model.intent.IntentContract
+import org.convert.convercy.model.screens.ScreenEvents
+import org.convert.convercy.model.screens.ScreenStates
 import org.convert.convercy.ui.theme.ExchangeCardColor
 import org.convert.convercy.ui.theme.LittleHeaderColor
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun CurrencyAmount(items: List<String>) {
-    val defaultValue = "0.1"
+fun CurrencyAmount(
+    intent: IntentContract<ScreenStates, ScreenEvents>,
+    screenState:ScreenStates.ExchangeScreen,
+    isReadOnlyTextField: Boolean = false
+) {
     val listWeight = 1.0F
     val fieldWeight = 1.0F
-    var selectedText by remember { mutableStateOf(items.first()) }
+    var amountValue by remember { mutableStateOf(
+        if (isReadOnlyTextField.not()) screenState.fromCurrencyAmount
+        else screenState.toCurrencyAmount
+    ) }
     var isExpanded by remember { mutableStateOf(false) }
-    var currentAmount by remember { mutableStateOf(defaultValue) }
     val keyboardController = LocalSoftwareKeyboardController.current
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -57,7 +66,8 @@ fun CurrencyAmount(items: List<String>) {
             modifier = Modifier.weight(listWeight)
         ) {
             TextField(
-                value = selectedText,
+                value = if (isReadOnlyTextField.not()) screenState.fromCurrencyType
+                    else screenState.toCurrencyType,
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = {
@@ -81,36 +91,52 @@ fun CurrencyAmount(items: List<String>) {
                 onDismissRequest = { isExpanded = false },
                 modifier = Modifier.background(color = ExchangeCardColor)
             ) {
-                items.forEachIndexed { index, text ->
+                val currencyList = if (isReadOnlyTextField.not()) screenState.fromCurrencyList
+                    else screenState.toCurrencyList
+                currencyList.forEach { item ->
                     DropdownMenuItem(
-                        text = { Text(text = text) },
+                        text = { Text(text = item) },
                         onClick = {
-                            selectedText = items[index]
                             isExpanded = false
-                        },
+                            intent.handleEvent(
+                                if (isReadOnlyTextField.not())
+                                   ScreenEvents.ExchangeScreenFromCurrencyTypeChanged(item)
+                                else
+                                   ScreenEvents.ExchangeScreenToCurrencyTypeChanged(item)
+                                )
+                            },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                     )
                 }
             }
         }
         TextField(
-            value = currentAmount,
-            onValueChange = { currentAmount = it},
+            value = amountValue,
+            onValueChange = {
+                amountValue = it
+                if (isReadOnlyTextField.not()) {
+                    intent.handleEvent(ScreenEvents.ExchangeScreenFromCurrencyAmountChanged(it))
+                }
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
+            readOnly = isReadOnlyTextField,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = ExchangeCardColor,
                 unfocusedIndicatorColor = ExchangeCardColor
             ),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
             shape = RoundedCornerShape(10),
-            modifier = Modifier.weight(fieldWeight)
+            modifier = Modifier.weight(fieldWeight).clickable(enabled = isReadOnlyTextField.not()){}
         )
     }
 }
 
 @Composable
-fun ExchangeCard(items: List<String>) {
+fun ExchangeCard(
+    intent: IntentContract<ScreenStates, ScreenEvents>,
+    screenState: ScreenStates.ExchangeScreen
+) {
     Surface(
         color = ExchangeCardColor,
         shape = RoundedCornerShape(10),
@@ -125,7 +151,10 @@ fun ExchangeCard(items: List<String>) {
                 color = LittleHeaderColor,
             )
             Spacer(modifier = Modifier.height(10.dp))
-            CurrencyAmount(items = items)
+            CurrencyAmount(
+                intent = intent,
+                screenState = screenState
+            )
             Spacer(modifier = Modifier.height(20.dp))
             Divider()
             Spacer(modifier = Modifier.height(10.dp))
@@ -134,7 +163,11 @@ fun ExchangeCard(items: List<String>) {
                 color = LittleHeaderColor,
             )
             Spacer(modifier = Modifier.height(10.dp))
-            CurrencyAmount(items = items)
+            CurrencyAmount(
+                intent = intent,
+                screenState = screenState,
+                isReadOnlyTextField = true
+            )
             Spacer(modifier = Modifier.height(10.dp))
         }
     }

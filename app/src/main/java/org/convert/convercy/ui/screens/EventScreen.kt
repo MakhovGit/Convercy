@@ -24,13 +24,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.convert.convercy.R
+import org.convert.convercy.model.intent.IntentContract
+import org.convert.convercy.model.screens.ScreenEvents
+import org.convert.convercy.model.screens.ScreenStates
 import org.convert.convercy.ui.theme.CommonTextColor
 import org.convert.convercy.ui.theme.ErrorScreenButtonColor
 import org.convert.convercy.ui.theme.NoInternetIconColor
 import org.convert.convercy.ui.theme.ScreenBackgroundColor
 
 @Composable
-fun ErrorScreen() {
+fun EventScreen(intent: IntentContract<ScreenStates, ScreenEvents>) {
     Surface(
         color = ScreenBackgroundColor,
         modifier = Modifier
@@ -68,7 +71,9 @@ fun ErrorScreen() {
                 modifier = Modifier.fillMaxHeight()
             ) {
                 OutlinedButton(
-                    onClick = {},
+                    onClick = {
+                        intent.handleEvent(ScreenEvents.EventScreenReconnectEvent)
+                    },
                     shape = RoundedCornerShape(size = 10.dp),
                     border = BorderStroke(width = 1.dp, color = ErrorScreenButtonColor),
                     modifier = Modifier.fillMaxWidth()
