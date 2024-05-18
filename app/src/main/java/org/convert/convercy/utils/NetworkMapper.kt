@@ -1,5 +1,6 @@
 package org.convert.convercy.utils
 
+import org.convert.convercy.R
 import org.convert.convercy.data.dto.CurrencyDescriptionDTO
 import org.convert.convercy.data.dto.DailyRatesDTO
 import org.convert.convercy.model.info.CurrencyDescriptionInfo
@@ -22,6 +23,7 @@ class NetworkMapper {
         val rubDescriptionInfo = CurrencyDescriptionInfo(
             numCode = 643,
             charCode = "RUB",
+            flagResId = R.drawable.ru,
             nominal = 1,
             name = "Российский рубль",
             value = 1.0F,
@@ -41,7 +43,9 @@ class NetworkMapper {
         dailyRatesDTO.currency?.gel?.let { description -> currencyList.add(map(description)) }
         dailyRatesDTO.currency?.dkk?.let { description -> currencyList.add(map(description)) }
         dailyRatesDTO.currency?.aed?.let { description -> currencyList.add(map(description)) }
-        dailyRatesDTO.currency?.usd?.let { description -> currencyList.add(map(description)) }
+        dailyRatesDTO.currency?.usd?.let {
+            description -> currencyList.add(map(description).copy(flagResId = R.drawable.us))
+        }
         dailyRatesDTO.currency?.eur?.let { description -> currencyList.add(map(description)) }
         dailyRatesDTO.currency?.egp?.let { description -> currencyList.add(map(description)) }
         dailyRatesDTO.currency?.inr?.let { description -> currencyList.add(map(description)) }

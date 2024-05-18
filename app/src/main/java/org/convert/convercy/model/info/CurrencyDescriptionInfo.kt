@@ -5,6 +5,7 @@ import org.convert.convercy.utils.ZERO
 
 data class CurrencyDescriptionInfo (
     val id: String = String.EMPTY,
+    val flagResId: Int = Int.ZERO,
     val numCode: Int = Int.ZERO,
     val charCode: String = String.EMPTY,
     val nominal: Int = Int.ZERO,

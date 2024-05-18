@@ -8,11 +8,13 @@ sealed interface ScreenStates {
     data object EventScreen : EventScreenState, ScreenStates
     data class ExchangeScreen(
         var fromCurrencyType: String,
+        var fromCurrencyFlagResId: Int,
         var fromCurrencyAmount: String,
-        var fromCurrencyList: List<String>,
+        var fromCurrencyList: List<Pair<String, Int>>,
         var toCurrencyType: String,
+        var toCurrencyFlagResId: Int,
         var toCurrencyAmount: String,
-        var toCurrencyList: List<String>,
+        var toCurrencyList: List<Pair<String, Int>>,
         var convertString: String
     ): ExchangeScreenState, ScreenStates
 
