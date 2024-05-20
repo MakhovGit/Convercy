@@ -1,4 +1,4 @@
-package org.convert.convercy.interactors
+package org.convert.convercy.data.interactors
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -38,12 +38,12 @@ class NetworkInteractor(
             repository.getDailyRates()
                 .flowOn(Dispatchers.IO)
                 .retry(MAX_RETRY_ATTEMPTS) { error ->
-                    Log.e(MAIN_LOG_TAG, "Network request error. Retry")
+                    Log.e(MAIN_LOG_TAG, "Network request error: ${error.message}. Retry")
                     delay(RETRY_DELAY)
                     true
                 }
                 .catch { error ->
-                    Log.e(MAIN_LOG_TAG, "Network request error.")
+                    Log.e(MAIN_LOG_TAG, "Network error. Stop.")
                     _outFlow.emit(NetworkInteractorMessages.Error(error))
                 }
                 .collect { result ->

@@ -1,8 +1,9 @@
 package org.convert.convercy.di
 
+import org.convert.convercy.data.keepers.DailyRatesKeeper
+import org.convert.convercy.data.interactors.NetworkInteractor
 import org.convert.convercy.data.retrofit.RetrofitDatasource
 import org.convert.convercy.intent.MainIntent
-import org.convert.convercy.interactors.NetworkInteractor
 import org.convert.convercy.repository.NetworkRepository
 import org.convert.convercy.repository.NetworkRepositoryImpl
 import org.convert.convercy.utils.NetworkMapper
@@ -14,5 +15,6 @@ val appKoinModule = module {
     single<NetworkRepository> { NetworkRepositoryImpl(retrofitDatasource = get()) }
     single { NetworkMapper() }
     single { NetworkInteractor(repository = get(), mapper = get()) }
-    viewModel { MainIntent(networkInteractor = get()) }
+    single { DailyRatesKeeper(networkInteractor = get()) }
+    viewModel { MainIntent(networkInteractor = get(), dailyRatesKeeper = get()) }
 }

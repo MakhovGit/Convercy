@@ -1,124 +1,91 @@
 package org.convert.convercy.intent
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.convert.convercy.R
-import org.convert.convercy.interactors.NetworkInteractor
-import org.convert.convercy.model.info.DailyRatesInfo
+import org.convert.convercy.data.keepers.DailyRatesKeeper
+import org.convert.convercy.data.interactors.NetworkInteractor
+import org.convert.convercy.intent.screen_handlers.EventScreenHandler
+import org.convert.convercy.intent.screen_handlers.ExchangeScreenHandler
+import org.convert.convercy.intent.screen_handlers.SplashScreenHandler
 import org.convert.convercy.model.intent.IntentContract
 import org.convert.convercy.model.interactors.NetworkInteractorMessages
 import org.convert.convercy.model.screens.ScreenEvents
 import org.convert.convercy.model.screens.ScreenStates
-import org.convert.convercy.utils.DataUtils
-import kotlin.math.floor
+import org.convert.convercy.settings.MAIN_LOG_TAG
 
 class MainIntent(
-    private val networkInteractor: NetworkInteractor
+    private val networkInteractor: NetworkInteractor,
+    dailyRatesKeeper: DailyRatesKeeper
 ) : ViewModel(), IntentContract<ScreenStates, ScreenEvents> {
     private val _screenStateFlow: MutableStateFlow<ScreenStates> =
-        MutableStateFlow(value = ScreenStates.SplashScreen)
-    override val screenStateFlow = _screenStateFlow.asSharedFlow()
+        MutableStateFlow(value = ScreenStates.SplashScreenState)
+    override val screenStateFlow = _screenStateFlow.asStateFlow()
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, error ->
+        Log.e(MAIN_LOG_TAG, "MainIntent error!: ${error.message}.")
         error.printStackTrace()
     }
     private val mainScope =
         CoroutineScope(Dispatchers.IO + SupervisorJob() + coroutineExceptionHandler)
-    private lateinit var dailyRatesInfo: DailyRatesInfo
-    private val lastExchangeScreenState = ScreenStates.ExchangeScreen(
-        fromCurrencyType = "USD",
-        fromCurrencyFlagResId = R.drawable.us,
-        fromCurrencyAmount = "1",
-        fromCurrencyList = listOf(),
-        toCurrencyType = "RUB",
-        toCurrencyFlagResId = R.drawable.ru,
-        toCurrencyAmount = "",
-        toCurrencyList  = listOf(),
-        convertString = ""
-    )
-    private val dataUtils = DataUtils()
+
+    private val splashScreenHandler = SplashScreenHandler(networkInteractor)
+    private val eventScreenHandler = EventScreenHandler(networkInteractor)
+    private val exchangeScreenHandler = ExchangeScreenHandler(dailyRatesKeeper)
     init {
-        prepareHandler()
+        networkInteractorHandlerStart()
+        splashScreenHandlerStart()
+        eventScreenHandlerStart()
+        exchangeScreenHandlerStart()
+        splashScreenHandler.handleEvent(ScreenEvents.SplashScreenEvents.InitialEvent)
     }
-    private fun prepareHandler() {
+
+    private fun networkInteractorHandlerStart() {
         mainScope.launch {
-            networkInteractor.outFlow
-                .collect { result ->
-                    when(result) {
-                        is NetworkInteractorMessages.Loading -> {}
-                        is NetworkInteractorMessages.Error -> {
-                            _screenStateFlow.emit(ScreenStates.EventScreen)
-                        }
-                        is NetworkInteractorMessages.Success -> {
-                            dailyRatesInfo = result.dailyRatesInfo
-                            val currencyList = result.dailyRatesInfo.currency.map { dataUtils.addFlagResIdToCharCode(it.charCode) }
-                            val currencyAmount = dataUtils.getCurrencyByCharCode(result.dailyRatesInfo.currency, "USD").value.toString()
-                            with(lastExchangeScreenState) {
-                                fromCurrencyList = currencyList
-                                toCurrencyAmount = currencyAmount
-                                toCurrencyList = currencyList
-                                convertString = "1 USD = ${dataUtils.getCurrencyByCharCode(result.dailyRatesInfo.currency, "USD").value} RUB"
-                            }
-                            _screenStateFlow.emit(lastExchangeScreenState.copy())
-                        }
+            networkInteractor.outFlow.collect { result ->
+                when(result) {
+                    is NetworkInteractorMessages.Error -> {
+                        _screenStateFlow.emit(ScreenStates.EventScreenState)
                     }
+                    else -> {}
                 }
+            }
         }
     }
 
-    override fun handleEvent() {
+    private fun splashScreenHandlerStart() {
         mainScope.launch {
-            _screenStateFlow.emit(ScreenStates.SplashScreen)
-            networkInteractor.start()
+            splashScreenHandler.outFlow
+                .collect { screenState -> _screenStateFlow.emit(screenState) }
+        }
+    }
+
+    private fun eventScreenHandlerStart() {
+        mainScope.launch {
+            eventScreenHandler.outFlow
+                .collect { screenState -> _screenStateFlow.emit(screenState) }
+        }
+    }
+
+    private fun exchangeScreenHandlerStart() {
+        mainScope.launch {
+            exchangeScreenHandler.outFlow
+                .collect { screenState -> _screenStateFlow.emit(screenState) }
         }
     }
 
     override fun handleEvent(screenEvent: ScreenEvents) {
         mainScope.launch {
             when (screenEvent) {
-                is ScreenEvents.EventScreenReconnectEvent -> handleEvent()
-                is ScreenEvents.ExchangeScreenFromCurrencyTypeChanged -> {
-                    with(lastExchangeScreenState) {
-                        fromCurrencyType = screenEvent.newFromCurrencyType
-                        fromCurrencyFlagResId = dataUtils.getFlagResIdByCharCode(fromCurrencyType)
-                        val fromCurrency = dataUtils.getCurrencyByCharCode(dailyRatesInfo.currency, fromCurrencyType)
-                        val toCurrency = dataUtils.getCurrencyByCharCode(dailyRatesInfo.currency, toCurrencyType)
-                        val toCurrencyAmountOne = floor((fromCurrency.value/fromCurrency.nominal/toCurrency.value) * 10000F) / 10000F
-                        toCurrencyAmount = (toCurrencyAmountOne*fromCurrencyAmount.toFloat()).toString()
-                        convertString = "1 ${fromCurrency.charCode} = $toCurrencyAmount ${toCurrency.charCode}"
-                    }
-                    _screenStateFlow.emit(lastExchangeScreenState.copy())
-                }
-                is ScreenEvents.ExchangeScreenToCurrencyTypeChanged -> {
-                    with(lastExchangeScreenState) {
-                        toCurrencyType = screenEvent.newToCurrencyType
-                        toCurrencyFlagResId = dataUtils.getFlagResIdByCharCode(toCurrencyType)
-                        val fromCurrency = dataUtils.getCurrencyByCharCode(dailyRatesInfo.currency, fromCurrencyType)
-                        val toCurrency = dataUtils.getCurrencyByCharCode(dailyRatesInfo.currency, toCurrencyType)
-                        val toCurrencyAmountOne = floor((fromCurrency.value/fromCurrency.nominal/toCurrency.value) * 10000F) / 10000F
-                        toCurrencyAmount = (toCurrencyAmountOne*fromCurrencyAmount.toFloat()).toString()
-                        convertString = "1 ${fromCurrency.charCode} = $toCurrencyAmount ${toCurrency.charCode}"
-                    }
-                    _screenStateFlow.emit(lastExchangeScreenState.copy())
-                }
-                is ScreenEvents.ExchangeScreenFromCurrencyAmountChanged -> {
-                    with(lastExchangeScreenState) {
-                        fromCurrencyAmount = screenEvent.newFromCurrencyAmount
-                        val fromCurrency = dataUtils.getCurrencyByCharCode(dailyRatesInfo.currency, fromCurrencyType)
-                        val toCurrency = dataUtils.getCurrencyByCharCode(dailyRatesInfo.currency, toCurrencyType)
-                        val toCurrencyAmountOne = floor((fromCurrency.value/fromCurrency.nominal/toCurrency.value) * 10000F) / 10000F
-                        toCurrencyAmount = (toCurrencyAmountOne*fromCurrencyAmount.toFloat()).toString()
-                    }
-                    _screenStateFlow.emit(lastExchangeScreenState.copy())
-                }
+                is ScreenEvents.SplashScreenEvents -> splashScreenHandler.handleEvent(screenEvent)
+                is ScreenEvents.EventScreenEvents -> eventScreenHandler.handleEvent(screenEvent)
+                is ScreenEvents.ExchangeScreenEvents -> exchangeScreenHandler.handleEvent(screenEvent)
             }
         }
     }
-
-
 }

@@ -1,9 +1,8 @@
 package org.convert.convercy.model.intent
 
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 interface IntentContract<T, U> {
-    val screenStateFlow: SharedFlow<T>
-    fun handleEvent()
+    val screenStateFlow: StateFlow<T>
     fun handleEvent(screenEvent: U)
 }

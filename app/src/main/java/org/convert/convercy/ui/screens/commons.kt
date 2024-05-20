@@ -48,15 +48,11 @@ import org.convert.convercy.ui.theme.LittleHeaderColor
 @Composable
 fun CurrencyAmount(
     intent: IntentContract<ScreenStates, ScreenEvents>,
-    screenState:ScreenStates.ExchangeScreen,
-    isReadOnlyTextField: Boolean = false
+    screenState:ScreenStates.ExchangeScreenState,
+    isReadOnlyMode: Boolean = false
 ) {
     val listWeight = 1.0F
     val fieldWeight = 1.0F
-    var amountValue by remember { mutableStateOf(
-        if (isReadOnlyTextField.not()) screenState.fromCurrencyAmount
-        else screenState.toCurrencyAmount
-    ) }
     var isExpanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     Row(
@@ -69,13 +65,13 @@ fun CurrencyAmount(
             modifier = Modifier.weight(listWeight)
         ) {
             TextField(
-                value = if (isReadOnlyTextField.not()) screenState.fromCurrencyType
+                value = if (isReadOnlyMode.not()) screenState.fromCurrencyType
                     else screenState.toCurrencyType,
                 onValueChange = {},
                 readOnly = true,
                 leadingIcon = {
                     Icon(painter = painterResource(
-                        id = if(isReadOnlyTextField.not()) screenState.fromCurrencyFlagResId
+                        id = if(isReadOnlyMode.not()) screenState.fromCurrencyFlagResId
                          else screenState.toCurrencyFlagResId
                     ),
                         contentDescription = null,
@@ -104,7 +100,7 @@ fun CurrencyAmount(
                 onDismissRequest = { isExpanded = false },
                 modifier = Modifier.background(color = ExchangeCardColor)
             ) {
-                val currencyList = if (isReadOnlyTextField.not()) screenState.fromCurrencyList
+                val currencyList = if (isReadOnlyMode.not()) screenState.fromCurrencyList
                     else screenState.toCurrencyList
                 currencyList.forEach { item ->
                     DropdownMenuItem(
@@ -120,10 +116,10 @@ fun CurrencyAmount(
                         onClick = {
                             isExpanded = false
                             intent.handleEvent(
-                                if (isReadOnlyTextField.not())
-                                   ScreenEvents.ExchangeScreenFromCurrencyTypeChanged(item.first)
+                                if (isReadOnlyMode.not())
+                                   ScreenEvents.ExchangeScreenEvents.FromCurrencyTypeChangedEvent(item.first)
                                 else
-                                   ScreenEvents.ExchangeScreenToCurrencyTypeChanged(item.first)
+                                   ScreenEvents.ExchangeScreenEvents.ToCurrencyTypeChangedEvent(item.first)
                                 )
                             },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -132,16 +128,16 @@ fun CurrencyAmount(
             }
         }
         TextField(
-            value = amountValue,
+            value = if (isReadOnlyMode.not()) screenState.fromCurrencyAmount
+                      else screenState.toCurrencyAmount,
             onValueChange = {
-                amountValue = it
-                if (isReadOnlyTextField.not()) {
-                    intent.handleEvent(ScreenEvents.ExchangeScreenFromCurrencyAmountChanged(it))
+                if (isReadOnlyMode.not()) {
+                    intent.handleEvent(ScreenEvents.ExchangeScreenEvents.FromCurrencyAmountChangedEvent(it))
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            readOnly = isReadOnlyTextField,
+            readOnly = isReadOnlyMode,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = ExchangeCardColor,
                 unfocusedIndicatorColor = ExchangeCardColor
@@ -150,7 +146,7 @@ fun CurrencyAmount(
             shape = RoundedCornerShape(10),
             modifier = Modifier
                 .weight(fieldWeight)
-                .clickable(enabled = isReadOnlyTextField.not()) {}
+                .clickable(enabled = isReadOnlyMode.not()) {}
         )
     }
 }
@@ -158,7 +154,7 @@ fun CurrencyAmount(
 @Composable
 fun ExchangeCard(
     intent: IntentContract<ScreenStates, ScreenEvents>,
-    screenState: ScreenStates.ExchangeScreen
+    screenState: ScreenStates.ExchangeScreenState
 ) {
     Surface(
         color = ExchangeCardColor,
@@ -186,7 +182,7 @@ fun ExchangeCard(
                     .fillMaxWidth()
                     .size(50.dp)
                     .clickable {
-
+                        intent.handleEvent(ScreenEvents.ExchangeScreenEvents.SwapCurrenciesEvent)
                     }
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -198,7 +194,7 @@ fun ExchangeCard(
             CurrencyAmount(
                 intent = intent,
                 screenState = screenState,
-                isReadOnlyTextField = true
+                isReadOnlyMode = true
             )
             Spacer(modifier = Modifier.height(10.dp))
         }

@@ -1,12 +1,9 @@
 package org.convert.convercy.model.screens
 
 sealed interface ScreenStates {
-    interface SplashScreenState
-    interface EventScreenState
-    interface ExchangeScreenState
-    data object SplashScreen : SplashScreenState, ScreenStates
-    data object EventScreen : EventScreenState, ScreenStates
-    data class ExchangeScreen(
+    data object SplashScreenState : ScreenStates
+    data object EventScreenState : ScreenStates
+    data class ExchangeScreenState(
         var fromCurrencyType: String,
         var fromCurrencyFlagResId: Int,
         var fromCurrencyAmount: String,
@@ -16,6 +13,6 @@ sealed interface ScreenStates {
         var toCurrencyAmount: String,
         var toCurrencyList: List<Pair<String, Int>>,
         var convertString: String
-    ): ExchangeScreenState, ScreenStates
+    ): ScreenStates
 
 }

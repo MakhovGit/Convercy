@@ -20,8 +20,8 @@ data class CurrencyDescriptionDTO(
     val name: String? = null,
 
     @field:SerializedName("Value")
-    val currency: Float? = null,
+    val currency: Double? = null,
 
     @field:SerializedName("Previous")
-    val previous: Float? = null
+    val previous: Double? = null
 )

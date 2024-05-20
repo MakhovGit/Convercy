@@ -72,7 +72,7 @@ fun EventScreen(intent: IntentContract<ScreenStates, ScreenEvents>) {
             ) {
                 OutlinedButton(
                     onClick = {
-                        intent.handleEvent(ScreenEvents.EventScreenReconnectEvent)
+                        intent.handleEvent(ScreenEvents.EventScreenEvents.ReconnectEvent)
                     },
                     shape = RoundedCornerShape(size = 10.dp),
                     border = BorderStroke(width = 1.dp, color = ErrorScreenButtonColor),

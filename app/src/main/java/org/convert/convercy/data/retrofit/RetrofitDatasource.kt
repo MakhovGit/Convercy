@@ -11,7 +11,7 @@ class RetrofitDatasource {
     private val retrofitApi = Retrofit
         .Builder()
         .baseUrl(RATES_URL_BASE)
-        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
         .build()
         .create(RetrofitApi::class.java)
 

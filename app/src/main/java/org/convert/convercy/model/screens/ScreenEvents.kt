@@ -1,14 +1,24 @@
 package org.convert.convercy.model.screens
 
-interface ScreenEvents {
-    data object EventScreenReconnectEvent : ScreenEvents
-    data class ExchangeScreenFromCurrencyTypeChanged(
-        val newFromCurrencyType: String
-    ): ScreenEvents
-    data class ExchangeScreenToCurrencyTypeChanged(
-        val newToCurrencyType: String
-    ): ScreenEvents
-    data class ExchangeScreenFromCurrencyAmountChanged(
-        val newFromCurrencyAmount: String
-    ): ScreenEvents
+sealed interface ScreenEvents {
+    sealed interface  SplashScreenEvents {
+        data object InitialEvent : SplashScreenEvents, ScreenEvents
+    }
+    sealed interface EventScreenEvents {
+        data object ReconnectEvent : EventScreenEvents, ScreenEvents
+    }
+    sealed interface ExchangeScreenEvents {
+        data object SwapCurrenciesEvent : ExchangeScreenEvents, ScreenEvents
+        data class FromCurrencyTypeChangedEvent(
+            val newFromCurrencyType: String
+        ) : ExchangeScreenEvents, ScreenEvents
+
+        data class ToCurrencyTypeChangedEvent(
+            val newToCurrencyType: String
+        ) : ExchangeScreenEvents, ScreenEvents
+
+        data class FromCurrencyAmountChangedEvent(
+            val newFromCurrencyAmount: String
+        ) : ExchangeScreenEvents, ScreenEvents
+    }
 }

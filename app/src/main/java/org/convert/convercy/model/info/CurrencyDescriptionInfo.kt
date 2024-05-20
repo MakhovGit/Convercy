@@ -10,6 +10,6 @@ data class CurrencyDescriptionInfo (
     val charCode: String = String.EMPTY,
     val nominal: Int = Int.ZERO,
     val name: String = String.EMPTY,
-    val value: Float = Float.ZERO,
-    val previous: Float = Float.ZERO
+    val value: Double = Double.ZERO,
+    val previous: Double = Double.ZERO
 )
