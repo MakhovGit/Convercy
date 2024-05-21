@@ -40,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
@@ -64,7 +64,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Koin
-    implementation(libs.koin)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
 
     // Retrofit
     implementation(libs.retrofit)
