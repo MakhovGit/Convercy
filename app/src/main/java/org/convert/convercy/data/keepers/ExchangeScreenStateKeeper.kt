@@ -78,7 +78,7 @@ class ExchangeScreenStateKeeper(
             Log.e(MAIN_LOG_TAG, "Error parsing $fromCurrencyAmount to Double!")
             e.printStackTrace()
         }
-        return toCurrencyAmountNew.toString()
+        return toCurrencyAmountNew.toBigDecimal().toPlainString()
     }
     private fun getToCurrencyAmountOne(
         fromNominal: Int,

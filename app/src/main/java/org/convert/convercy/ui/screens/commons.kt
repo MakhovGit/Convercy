@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -44,7 +43,7 @@ import org.convert.convercy.model.screens.ScreenStates
 import org.convert.convercy.ui.theme.ExchangeCardColor
 import org.convert.convercy.ui.theme.LittleHeaderColor
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyAmount(
     intent: IntentContract<ScreenStates, ScreenEvents>,
@@ -54,6 +53,7 @@ fun CurrencyAmount(
     val listWeight = 1.0F
     val fieldWeight = 1.0F
     var isExpanded by remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(screenState.fromCurrencyAmount) }
     val keyboardController = LocalSoftwareKeyboardController.current
     Row(
         horizontalArrangement = Arrangement.spacedBy(40.dp),
@@ -128,9 +128,10 @@ fun CurrencyAmount(
             }
         }
         TextField(
-            value = if (isReadOnlyMode.not()) screenState.fromCurrencyAmount
+            value = if (isReadOnlyMode.not()) textFieldValue
                       else screenState.toCurrencyAmount,
             onValueChange = {
+                textFieldValue = it
                 if (isReadOnlyMode.not()) {
                     intent.handleEvent(ScreenEvents.ExchangeScreenEvents.FromCurrencyAmountChangedEvent(it))
                 }
