@@ -2,7 +2,7 @@ package org.convert.convercy.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class CurrencyDescriptionDTO(
+data class CurrencyDescriptionDto(
 
     @field:SerializedName("ID")
     val id: String? = null,

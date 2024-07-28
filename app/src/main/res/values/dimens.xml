@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Commons begin -->
+    <dimen name="spacer_10">10dp</dimen>
+    <dimen name="spacer_20">20dp</dimen>
+    <dimen name="spacer_30">30dp</dimen>
+    <dimen name="common_padding">10dp</dimen>
+    <dimen name="card_rounded_corner">30dp</dimen>
+    <dimen name="button_rounded_corner">10dp</dimen>
+    <dimen name="button_border_width">1dp</dimen>
+    <dimen name="button_font_size">20sp</dimen>
+    <dimen name="text_field_rounded_corner">10dp</dimen>
+    <!-- Commons end -->
+
+    <!-- CurrencyAmount begin -->
+    <dimen name="currency_amount_row_arrangement_space">40dp</dimen>
+    <dimen name="currency_amount_leading_icon_size">30dp</dimen>
+    <!-- CurrencyAmount end -->
+
+    <!-- EventScreen begin -->
+    <dimen name="event_screen_spacer">150dp</dimen>
+    <dimen name="event_screen_icon_size">200dp</dimen>
+    <dimen name="event_screen_event_title_font_size">30sp</dimen>
+    <dimen name="event_screen_event_description_font_size">15sp</dimen>
+    <dimen name="event_screen_button_padding_bottom">20dp</dimen>
+    <!-- EventScreen end -->
+
+    <!-- ExchangeCard begin -->
+    <dimen name="exchange_card_icon_size">50dp</dimen>
+    <!-- ExchangeCard end -->
+
+    <!-- ExchangeScreen begin -->
+    <dimen name="exchange_screen_title_font_size">22sp</dimen>
+    <dimen name="exchange_screen_title_padding">20dp</dimen>
+    <dimen name="exchange_screen_convert_string_font_size">20sp</dimen>
+    <!-- ExchangeScreen end -->
+
+</resources>

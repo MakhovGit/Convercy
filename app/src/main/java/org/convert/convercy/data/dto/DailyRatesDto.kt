@@ -2,7 +2,7 @@ package org.convert.convercy.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class DailyRatesDTO (
+data class DailyRatesDto(
 
     @field:SerializedName("Date")
     val date: String? = null,
@@ -17,5 +17,5 @@ data class DailyRatesDTO (
     val timestamp: String? = null,
 
     @field:SerializedName("Valute")
-    val currency: CurrencyDTO? = null
+    val currency: CurrencyDto? = null
 )

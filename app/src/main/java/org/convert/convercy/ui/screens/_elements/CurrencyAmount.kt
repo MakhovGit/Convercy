@@ -1,14 +1,10 @@
-package org.convert.convercy.ui.screens
+package org.convert.convercy.ui.screens._elements
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,7 +14,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -31,32 +26,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import org.convert.convercy.R
-import org.convert.convercy.model.intent.IntentContract
-import org.convert.convercy.model.screens.ScreenEvents
-import org.convert.convercy.model.screens.ScreenStates
+import org.convert.convercy.ui.screens.main_screen.MainScreenContract
 import org.convert.convercy.ui.theme.ExchangeCardColor
-import org.convert.convercy.ui.theme.LittleHeaderColor
+import org.convert.convercy.utils.MAX_WEIGHT
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyAmount(
-    intent: IntentContract<ScreenStates, ScreenEvents>,
-    screenState:ScreenStates.ExchangeScreenState,
+    screenState: MainScreenContract.State,
+    onClick: (isReadOnlyMode: Boolean, currency: String) -> Unit,
+    onValueChange: (value: String) -> Unit,
     isReadOnlyMode: Boolean = false
 ) {
-    val listWeight = 1.0F
-    val fieldWeight = 1.0F
+    val listWeight = Float.MAX_WEIGHT
+    val fieldWeight = Float.MAX_WEIGHT
     var isExpanded by remember { mutableStateOf(false) }
-    var textFieldValue by remember { mutableStateOf(screenState.fromCurrencyAmount) }
+    var textFieldValue by remember { mutableStateOf(screenState.currencyInfo.fromCurrencyAmount) }
     val keyboardController = LocalSoftwareKeyboardController.current
     Row(
-        horizontalArrangement = Arrangement.spacedBy(40.dp),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.currency_amount_row_arrangement_space)),
         modifier = Modifier.fillMaxWidth()
     ) {
         ExposedDropdownMenuBox(
@@ -65,17 +58,18 @@ fun CurrencyAmount(
             modifier = Modifier.weight(listWeight)
         ) {
             TextField(
-                value = if (isReadOnlyMode.not()) screenState.fromCurrencyType
-                    else screenState.toCurrencyType,
+                value = if (isReadOnlyMode.not()) screenState.currencyInfo.fromCurrencyType
+                else screenState.currencyInfo.toCurrencyType,
                 onValueChange = {},
                 readOnly = true,
                 leadingIcon = {
-                    Icon(painter = painterResource(
-                        id = if(isReadOnlyMode.not()) screenState.fromCurrencyFlagResId
-                         else screenState.toCurrencyFlagResId
-                    ),
+                    Icon(
+                        painter = painterResource(
+                            id = if (isReadOnlyMode.not()) screenState.currencyInfo.fromCurrencyFlagResId
+                            else screenState.currencyInfo.toCurrencyFlagResId
+                        ),
                         contentDescription = null,
-                        modifier = Modifier.size(30.dp),
+                        modifier = Modifier.size(dimensionResource(id = R.dimen.currency_amount_leading_icon_size)),
                         tint = Color.Unspecified
                     )
                 },
@@ -100,28 +94,24 @@ fun CurrencyAmount(
                 onDismissRequest = { isExpanded = false },
                 modifier = Modifier.background(color = ExchangeCardColor)
             ) {
-                val currencyList = if (isReadOnlyMode.not()) screenState.fromCurrencyList
-                    else screenState.toCurrencyList
+                val currencyList =
+                    if (isReadOnlyMode.not()) screenState.currencyInfo.fromCurrencyList
+                    else screenState.currencyInfo.toCurrencyList
                 currencyList.forEach { item ->
                     DropdownMenuItem(
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = item.second),
                                 contentDescription = null,
-                                modifier = Modifier.size(30.dp),
+                                modifier = Modifier.size(dimensionResource(id = R.dimen.currency_amount_leading_icon_size)),
                                 tint = Color.Unspecified
                             )
                         },
                         text = { Text(text = item.first) },
                         onClick = {
                             isExpanded = false
-                            intent.handleEvent(
-                                if (isReadOnlyMode.not())
-                                   ScreenEvents.ExchangeScreenEvents.FromCurrencyTypeChangedEvent(item.first)
-                                else
-                                   ScreenEvents.ExchangeScreenEvents.ToCurrencyTypeChangedEvent(item.first)
-                                )
-                            },
+                            onClick(isReadOnlyMode, item.first)
+                        },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                     )
                 }
@@ -129,11 +119,11 @@ fun CurrencyAmount(
         }
         TextField(
             value = if (isReadOnlyMode.not()) textFieldValue
-                      else screenState.toCurrencyAmount,
+            else screenState.currencyInfo.toCurrencyAmount,
             onValueChange = {
                 textFieldValue = it
                 if (isReadOnlyMode.not()) {
-                    intent.handleEvent(ScreenEvents.ExchangeScreenEvents.FromCurrencyAmountChangedEvent(it))
+                    onValueChange(it)
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -144,60 +134,10 @@ fun CurrencyAmount(
                 unfocusedIndicatorColor = ExchangeCardColor
             ),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-            shape = RoundedCornerShape(10),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_field_rounded_corner)),
             modifier = Modifier
                 .weight(fieldWeight)
                 .clickable(enabled = isReadOnlyMode.not()) {}
         )
-    }
-}
-
-@Composable
-fun ExchangeCard(
-    intent: IntentContract<ScreenStates, ScreenEvents>,
-    screenState: ScreenStates.ExchangeScreenState
-) {
-    Surface(
-        color = ExchangeCardColor,
-        shape = RoundedCornerShape(10),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = stringResource(id = R.string.amount_header),
-                color = LittleHeaderColor,
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            CurrencyAmount(
-                intent = intent,
-                screenState = screenState
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            Icon(painter = painterResource(id = R.drawable.ic_divider),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .size(50.dp)
-                    .clickable {
-                        intent.handleEvent(ScreenEvents.ExchangeScreenEvents.SwapCurrenciesEvent)
-                    }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = stringResource(id = R.string.convertible_amount_header),
-                color = LittleHeaderColor,
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            CurrencyAmount(
-                intent = intent,
-                screenState = screenState,
-                isReadOnlyMode = true
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-        }
     }
 }

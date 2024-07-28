@@ -1,4 +1,4 @@
-package org.convert.convercy.data.interactors
+package org.convert.convercy.data.interactors.network_interactor
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
-import org.convert.convercy.model.interactors.NetworkInteractorMessages
 import org.convert.convercy.repository.NetworkRepository
 import org.convert.convercy.settings.MAIN_LOG_TAG
 import org.convert.convercy.utils.NetworkMapper
@@ -32,9 +31,9 @@ class NetworkInteractor(
     private val mainScope =
         CoroutineScope(Dispatchers.IO + SupervisorJob() + coroutineExceptionHandler)
 
-    fun start() {
+    fun requestDailyRates() {
         mainScope.launch {
-            _outFlow.emit(NetworkInteractorMessages.Loading)
+            _outFlow.emit(NetworkInteractorMessages.RequestDailyRates.Loading)
             repository.getDailyRates()
                 .flowOn(Dispatchers.IO)
                 .retry(MAX_RETRY_ATTEMPTS) { error ->
@@ -44,10 +43,16 @@ class NetworkInteractor(
                 }
                 .catch { error ->
                     Log.e(MAIN_LOG_TAG, "Network error. Stop.")
-                    _outFlow.emit(NetworkInteractorMessages.Error(error))
+                    _outFlow.emit(NetworkInteractorMessages.RequestDailyRates.Error(error))
                 }
                 .collect { result ->
-                    _outFlow.emit(NetworkInteractorMessages.Success(mapper.map(result)))
+                    _outFlow.emit(
+                        NetworkInteractorMessages.RequestDailyRates.Success(
+                            mapper.map(
+                                result
+                            )
+                        )
+                    )
                 }
         }
     }

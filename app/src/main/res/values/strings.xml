@@ -5,18 +5,18 @@
     <!-- Commons end -->
 
     <!-- ExchangeScreen begin -->
-    <string name="main_header">Конвертер валют</string>
-    <string name="exchange_rate_header">Обменный курс</string>
-    <string name="exchange_rate">1 RUS = 0.011 USD</string>
-    <string name="amount_header">Сумма</string>
-    <string name="convertible_amount_header">Конвертируемая сумма</string>
+    <string name="exchange_screen_main_header">Конвертер валют</string>
+    <string name="exchange_screen_exchange_rate_header">Обменный курс</string>
+    <string name="exchange_screen_amount_header">Сумма</string>
+    <string name="exchange_screen_convertible_amount_header">Конвертируемая сумма</string>
     <!-- ExchangeScreen end -->
 
-    <!-- ErrorScreen begin -->
-    <string name="error_message">Нет соединения</string>
-    <string name="error_hint">Проверьте интернет-соединение\n и попробуйте ещё раз</string>
-    <string name="reconnect_button">Переподключиться</string>
-    <!-- ErrorScreen end -->
+    <!-- EventScreen begin -->
+    <string name="event_screen_error_message">Нет соединения</string>
+    <string name="event_screen_error_hint">Проверьте интернет-соединение\nи попробуйте ещё раз</string>
+    <string name="event_screen_reconnect_button">Переподключиться</string>
+    <string name="event_screen_icon_content_description">Ошибка соединения</string>
+    <!-- EventScreen end -->
 
 
 </resources>
