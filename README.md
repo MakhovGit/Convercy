@@ -4,6 +4,7 @@ This application displays current exchange rates between different currencies an
 ### Technologies used:
 - Kotlin
 - MVI
+- Kotlin Flow
 - Jetpack Compose
 - Coroutines
 - Koin
